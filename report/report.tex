@@ -37,8 +37,18 @@ G = (E, S, f, \Gamma, s_0, S_M)
 \subsection{States}
 
 \[
-s_i = [d_i, o_i, f_i, m_i]
+S = [W, P, Q]
 \]
+
+\subsubsection{Lift states}
+
+\[ W=[w_1, w_2, ..., w_i, ..., w_l ]\]
+where:
+\begin{itemize}
+  \item \(l\) - number of lifts
+\end{itemize}
+
+\[ w_i = [d_i, o_i, f_i, m_i] \]
 where:
 
 \(d \in \{0,1\}\)
@@ -59,14 +69,42 @@ where:
   \item \(n\) - number of floors
 \end{itemize}
 
-\(S=[s_1, s_2, ..., s_l]\)
+\subsubsection{Internal buttons states}
+
+\[ P = [p_1, p_2, ..., p_i, ..., p_n] \]
+where:
+\begin{itemize}
+  \item \(n\) - number of floors
+\end{itemize}
+
+\[ p_i = [g_{u_i}, g_{d_i}] \]
+where:
+\(g_{u_i} \in \{0,1\}\)
+\begin{itemize}
+  \item 0 - not pushed
+  \item 1 - pushed
+\end{itemize}
+\(g_{d_i} \in \{0,1\}\)
+\begin{itemize}
+  \item 0 - not pushed
+  \item 1 - pushed
+\end{itemize}
+
+
+\subsubsection{External buttons states}
+\[ Q = [q_1, q_2, ..., q_i, ..., q_l] \]
+where:
 \begin{itemize}
   \item \(l\) - number of lifts
 \end{itemize}
+\[q_i = [b_0, b_1, ..., b_i, ..., b_n] \]
+\(b_i \in \{0,1\} \)
+\begin{itemize}
+  \item 0 - not pushed
+  \item 1 - pushed
+\end{itemize}
 
-\[
-W = [S, P, Q]
-\]
+
 
 %\newpage
 % dwa
