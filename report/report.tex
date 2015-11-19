@@ -28,17 +28,13 @@ should optimize lifts movements.
   \caption{DES graph}
 \end{figure}
 
-\[
-G = (E, S, f, \Gamma, s_0, S_M)
-\]
+\[ G = (E, S, f, \Gamma, s_0, S_M) \]
 
 %\newpage
 % jeden
-\subsection{States}
+\subsection{States \(S\)}
 
-\[
-S = [W, P, Q]
-\]
+\[ S = [W, P, Q] \]
 
 \subsubsection{Lift states}
 
@@ -48,12 +44,13 @@ where:
   \item \(l\) - number of lifts
 \end{itemize}
 
-\[ w_i = [d_i, o_i, f_i, m_i] \]
+\[ w_i = [d_i, o_i, f_i] \]
 where:
 
 \(d \in \{0,1\}\)
 \begin{itemize}
-  \item \(0\) - down
+  \item \(-1\) - down
+  \item \(0\) - stop
   \item \(1\) - up
 \end{itemize}
 
@@ -108,33 +105,38 @@ where:
 
 %\newpage
 % dwa
-\subsection{Events}
+\subsection{Events \(E\)}
 
-\[
-E = E^l \cup E^c \cup E^x \cup E^i
-\]
-
-\[
-E^i = [\text{lift\_nr},\text{button\_nr}]
-\]
-
+\[ E = E^l \cup E^c \cup E^x \cup E^i \]
+\[ E^i = [\text{lift\_nr},\text{button\_nr}] \]
 \(\text{direction} \in \{0,1\}\)
-
-\[
-E^x = [\text{lift\_nr}, \text{command}]
-\]
-
+\[ E^x = [\text{lift\_nr}, \text{command}] \]
 \(\text{command} \in \{0,1,2,3,4\}\)
-
-\[
-E^c = [\text{lift\_nr}, \text{ACK}]
-\]
-
+\[ E^c = [\text{lift\_nr}, \text{ACK}] \]
 \(\text{ACK} \in \{0,1,2,3\}\)
 
 %\newpage
 % trzy
-\subsection{Transitions}
+\subsection{Transition function\(f(s,e)\)}
+\(0 < i < n\)
+\[ f([0,0,i],\text{open\_doors}) = [0,1,i]\]
+\[ f([0,1,i],\text{close\_doors}) = [0,0,i]\]
+\[ f([0,0,i],\text{move\_up}) = [0,1,i+1]\]
+\[ f([0,0,i],\text{move\_down}) = [0,1,i-1]\]
+
+\subsection{Active event function \(\Gamma(s)\)}
+\(0 < i < n\)
+\[ \Gamma(0,0,i) = \{\text{close\_doors}\}\]
+\[ \Gamma(0,1,i) = \{\text{move\_up},\text{move\_down},\text{open\_doors}\}\]
+\[ \Gamma(1,0,i) = \{stop\}\]
+\[ \Gamma(-1,0,i) = \{stop\}\]
+
+\subsection{Initial state \(s_0\)}
+All 0.
+
+\subsection{Marked states \(S_M\)}
+All accepted.
+
 
 \section{Example}
 
@@ -144,17 +146,9 @@ Parameters:
   \item number of floors: 3.
 \end{itemize}
 
-\[
-S = [ [d_1, o_1, f_1, m_1], [d_2, o_2, f_2, m_2] ]
-\]
-\[
-P = [ [g_{u_0}, g_{d_0}], [g_{u_1}, g_{d_1}], [g_{u_2}, g_{d_2}] ]
-\]
-\[
-Q = [ [b_{1_0},b_{1_1},b_{1_2}], [b_{2_0},b_{2_1},b_{2_2}] ]
-\]
-\[
-W=[S,P,Q]
-\]
+\[ S = [ [d_0, o_0, f_0, m_0], [d_1, o_1, f_1, m_1] ] \]
+\[ P = [ [g_{u_0}, g_{d_0}], [g_{u_1}, g_{d_1}], [g_{u_2}, g_{d_2}] ] \]
+\[ Q = [ [b_{0_0},b_{0_1},b_{0_2}], [b_{1_0},b_{1_1},b_{1_2}] ] \]
+\[ W=[S,P,Q] \]
 
 \end{document}
