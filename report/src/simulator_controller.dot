@@ -1,0 +1,12 @@
+graph simulator_controller {
+//  edge [label=0];
+  graph [ranksep=0];
+  SIMULATOR [shape=record, label="{SIMLULATOR}"];
+  CONTROLLER [shape=record, label="{CONTROLLER}"];
+  SIMULATOR -- CONTROLLER [label=E_L,len=10];
+  CONTROLLER -- SIMULATOR [label=E_C,len=10];
+  USER -- CONTROLLER [label=E_I];
+  USER -- CONTROLLER [label=E_X];
+  {rank=same; SIMULATOR CONTROLLER}
+//  {rank=same; USER}
+}
