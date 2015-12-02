@@ -1,32 +1,29 @@
-\documentclass{article}
-\usepackage{graphicx}
-%\usepackage[utf8]{inputenc}
+\documentclass[12pt]{article}
+%\usepackage[version=3]{mhchem} % Package for chemical equation typesetting
+%\usepackage{siunitx} % Provides the \SI{}{} and \si{} command for typesetting SI units
+\usepackage{graphicx} % Required for the inclusion of images
+%\usepackage{natbib} % Required to change bibliography style to APA
+\usepackage{amsmath} % Required for some math elements 
+\usepackage{float}
+\usepackage{listings}
+\setlength\parindent{0pt} % Removes all indentation from paragraphs
+
+\renewcommand{\labelenumi}{\alph{enumi}.} % Make numbering in the enumerate environment by letter rather than number (e.g. section 6)
+\title{Project - Elevator} % Title
+\author{Dominik Koszkul, Michal Oleszczyk, Cezary Dynak, Marek Frydrysiak } % Author name
 \usepackage{geometry}
-\usepackage{amsmath}
-
+\newgeometry{tmargin=2cm, bmargin=2cm, lmargin=2cm, rmargin=2cm}
 \begin{document}
+\maketitle % Insert the title, author and date
 
-\title{Lift event-based control - report}
-\author{Cezary Dynak, Marek Frydrysiak, Dominik Koszuk, Michal Oleszczyk} 
-\date{\today}
-\maketitle
 
-\section{High-level description}
-
-Goal of this project is to create simulator an controller for multi lift
-system. It will be parametrized by the number of lifts and the number
-of floors. On each floor there are two buttons (let's call them eXternal),
-to call any lift for going up or down. Inside lifts there are as many buttons,
-as the number of floors, for choosing desired floor from inside. Controller
-should optimize lifts movements.
+\section{Main concept}
+	Main concept is to create two different programs (one for implementation of controller system and the second one for implementation of elevators simulation). Programs should be independent. That means they should use some general protocol for communication, and should work fine with any other external programs which also use that specified protocol. Both programs start with set of parameters: number of elevators and number of floors supported by any of them. Number of floor does not need to be the same for different elevators. Our elevator controller and simulation do not support underground floors.
+\newline
+\newline
+Assumption: at the very beginning all elevators are in state: closed door on floor 0 (ground floor). Controller remembers current state of all elevators in anytime.
 
 \section{Automaton description}
-
-\begin{figure}
-  \centering
-  \includegraphics{img/simulator_controller.png}
-  \caption{DES graph}
-\end{figure}
 
 \[ G = (E, S, f, \Gamma, s_0, S_M) \]
 
@@ -47,7 +44,7 @@ where:
 \[ w_i = [d_i, o_i, f_i] \]
 where:
 
-\(d \in \{0,1\}\)
+\(d \in \{-1,0,1\}\)
 \begin{itemize}
   \item \(-1\) - down
   \item \(0\) - stop
@@ -66,7 +63,13 @@ where:
   \item \(n\) - number of floors
 \end{itemize}
 
-\subsubsection{Internal buttons states}
+\begin{figure}
+  \centering
+  \includegraphics{img/simulator_controller.png}
+  \caption{DES graph}
+\end{figure}
+
+\subsubsection{External buttons states}
 
 \[ P = [p_1, p_2, ..., p_i, ..., p_n] \]
 where:
@@ -88,7 +91,7 @@ where:
 \end{itemize}
 
 
-\subsubsection{External buttons states}
+\subsubsection{Internal buttons states}
 \[ Q = [q_1, q_2, ..., q_i, ..., q_l] \]
 where:
 \begin{itemize}
@@ -138,17 +141,71 @@ All 0.
 All accepted.
 
 
-\section{Example}
+\subsection{Protocol}
+Controller -\textgreater Simulation commands:
+\begin{enumerate}
+	\item $X:Y$ (where X is number of elevator, Y is number of floor) - let elevator X move to floor Y.
+	\item $X:s$ (where X is number of elevator) - let elevator X stops.
+	\item $X:o$ (where X is number of elevator) - let elevator X opens the door.
+	\item $X:c$ (where X is number of elevator) - let elevator X closes the door
+\end{enumerate}
 
-Parameters:
+
+Simulation -\textgreater Controller commands:
+\begin{enumerate}
+	\item $X:a$ (where X is number of elevator) - elevator X confirms execution of previous controller command.
+	\item $Y:d$ (where Y is number of floor) - on the floor Y$^{th}$ user push the button to go down.
+	\item $Y:u$ (where Y is number of floor) - on the floor Y$^{th}$ user push the button to go up.
+	\item $X:Y$ (where X is number of elevator, Y is number of floor) - inside elevator X user push the button to go to the Y$^{th}$ floor.
+\end{enumerate}	
+
+Command $X:a$ should be send from simulation to controller after execution of any controller command. It provides a synchronization between both programs.
+\newline
+\newline
+
+\section{Implementation}
+\subsection{General informations}
+\subsubsection{Controller}
+Has to be done.
+\subsubsection{Simulation}
+Simulation program has been written in Python2.7 scripting language. For preparation user interface we used $Tkinter$ standard library. 
+Simulation consists 3 modules: graphics.py, elevator.py and my{\_}threads.py and implements 2 basic classes:  
 \begin{itemize}
-  \item number of lifts: 2,
-  \item number of floors: 3.
+ \item Stage - class responsible for drawing user interface in general (makes windows, buttons, digital panels).
+ \item Elevator - class responsible for handling elevator object (sets its parameters, states). 
+\end{itemize}
+and classes inheriting from class $Thread$:
+\begin{itemize}
+ \item MoveLift - class executes command type $X:Y$.
+ \item StopLift - class executes command type $X:s$.
+ \item OpenDoors - class executes command type $X:o$.
+ \item CloseDoors - class executes command type $X:c$.
+ \item ListenInstructions - class listen if in input port is any incoming command.
+ \item SendInstructions - class sends to output port command for controller.
 \end{itemize}
 
-\[ S = [ [d_0, o_0, f_0, m_0], [d_1, o_1, f_1, m_1] ] \]
-\[ P = [ [g_{u_0}, g_{d_0}], [g_{u_1}, g_{d_1}], [g_{u_2}, g_{d_2}] ] \]
-\[ Q = [ [b_{0_0},b_{0_1},b_{0_2}], [b_{1_0},b_{1_1},b_{1_2}] ] \]
-\[ W=[S,P,Q] \]
+
+Program is basing on 4 main threads (to quarantee simultaneously work): 
+\begin{itemize}
+	\item Main thread - is responsible for configure parameters, start other thread and waiting for them to finish.
+	\item Graphical thread - is responsible for refreshing user interface (drawing elevators and floors) and for sending. 
+	\item Listenning thread - is responsible for listenning input port and adding incoming instructions to input queue.
+	\item Sending thread - is responsible for sending command to controller via output port if there is some instruction ready to send in output queue.		
+\end{itemize}
+
+Furthermore, any command read from controller (like MoveLift, StopLift, OpenDoor, CloseDoor) take some predefined time. That is why any of that incoming command starts another independent thread. In that thread commands are executed (for example during MoveLift command user interface shows direction of movement, highlight specified floor to green). After execution that thread put in output queue confirmation of execution for controller ($X:a$).
+	\begin{figure}
+	\includegraphics[width=0.93\textwidth]{img/winda.png}
+	\end{figure}
+
+\subsection{Connection}
+Connection is based on simple sockets. Incoming port for controller is a the same time outcoming port for simulation program. On the other hand outcoming port for controller is an incomming port for simulation.
+\newline
+\newline
+For now:
+\newline
+controller -\textgreater simulation is realised on port 8089,
+\newline
+simulation -\textgreater controller is realised on port 8090.
 
 \end{document}
