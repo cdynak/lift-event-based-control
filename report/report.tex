@@ -52,7 +52,7 @@ where:
 
 \(f \in \{0,1,...,i,...,n\}\)
 \begin{itemize}
-  \item \(i\) - last reached floor
+  \item \(i\) - next floor to be reached
   \item \(n\) - number of floors
 \end{itemize}
 
@@ -65,10 +65,10 @@ where:
   \item \(n\) - number of floors
 \end{itemize}
 
-\[ p_i = [g_{u_i}, g_{d_i}] \]
+\[ p_i = [g_{i_d}, g_{i_u}] \]
 where:\\
-\(g_{u_i} \in \{\text{not\_pushed},\text{pushed}\}\)\\
-\(g_{d_i} \in \{\text{not\_pushed},\text{pushed}\}\)
+\(g_{i_d} \in \{\text{not\_pushed},\text{pushed}\}\)
+\(g_{i_u} \in \{\text{not\_pushed},\text{pushed}\}\)\\
 
 
 \subsubsection{Internal buttons states}
@@ -77,8 +77,8 @@ where:
 \begin{itemize}
   \item \(l\) - number of lifts
 \end{itemize}
-\[q_i = [b_0, b_1, ..., b_i, ..., b_n] \]
-\(b_i \in \{\text{not\_pushed},\text{pushed}\} \)
+\[q_i = [b_{i_0}, b_{i_1}, ..., b_{i_j}, ..., b_{i_n}] \]
+\(b_{i_j} \in \{\text{not\_pushed},\text{pushed}\} \)
 
 \newpage
 
@@ -88,9 +88,11 @@ where:
 
 \subsubsection{Events from external buttons}
 \[ E^x = [\text{lift\_nr},\text{button\_nr}] \]
+\(\text{button\_nr} \in \{\text{button\_down},\text{button\_up}\}\)
 
 \subsubsection{Events from internal buttons}
 \[ E^i = [\text{lift\_nr},\text{button\_nr}] \]
+\(\text{button\_nr} \in \{0, 1,..., n\}\)
 
 \subsubsection{Events from controller}
 \[ E^c = [\text{lift\_nr}, \text{command}] \]
@@ -101,50 +103,62 @@ where:
 \(\text{command} \in \{\text{going\_down},\text{stopped},\text{going\_up},\text{closed},\text{opened}\}\)
 
 \subsection{Transition function\(f(s,e)\)}
-\(0 < i < n\)
-\[ f([0,0,i],\text{open\_doors}) = [0,1,i]\]
-\[ f([0,1,i],\text{close\_doors}) = [0,0,i]\]
-\[ f([0,0,i],\text{move\_up}) = [0,1,i+1]\]
-\[ f([0,0,i],\text{move\_down}) = [0,1,i-1]\]
+
+\subsubsection{Events from external buttons}
+\[
+  f(s_0,[\text{lift\_nr},\text{button\_down}]) =
+  [0,[[0,0],...,[g_{\text{lift\_nr}_d}=\text{pushed},0],...,[0,0]],0]
+\]
+\[
+  f(s_0,[\text{lift\_nr},\text{button\_up}]) =
+  [0,[[0,0],...,[0,g_{\text{lift\_nr}_u}=\text{pushed},0],...,[0,0]],0]
+\]
+
+
+\subsubsection{Events from internal buttons}
+\[
+  f(s_0,[\text{lift\_nr},\text{button\_nr}]) =
+  [0,[[0,...,0],...,[0,...,b_{\text{lift\_nr}_\text{button\_nr}}=\text{pushed},..,0],...,[0,...,0]],0]
+\]
+
+\subsubsection{Events from controller}
+\(
+  f(s_0,[\text{lift\_nr},\text{go\_down}] =
+  [[...,[d_\text{lift\_nr}=\text{going\_down},0,f_\text{lift\_nr}+1],...],0,0]
+\)\\
+\(
+  f(s_0,[\text{lift\_nr},\text{stop}] =
+  [[...,[d_\text{lift\_nr}=\text{stopped},0,0],...],0,0]
+\)\\
+\(
+  f(s_0,[\text{lift\_nr},\text{go\_up}] =
+  [[...,[d_\text{lift\_nr}=\text{going\_up},0,f_\text{lift\_nr}-1],...],0,0]
+\)\\
+\(
+  f(s_0,[\text{lift\_nr},\text{close\_door}] =
+  [[...,[0,o_\text{lift\_nr}=\text{closed},0],...],0,0]
+\)\\
+\(
+  f(s_0,[\text{lift\_nr},\text{open\_door}] =
+  [[...,[0,o_\text{lift\_nr}=\text{opened},0],...],0,0]
+\)
+
+\subsubsection{Events from lifts}
+Events from lifts don't change states, they are only information for controller.
 
 \subsection{Active event function \(\Gamma(s)\)}
-\(0 < i < n\)
-\[ \Gamma(0,0,i) = \{\text{close\_doors}\}\]
-\[ \Gamma(0,1,i) = \{\text{move\_up},\text{move\_down},\text{open\_doors}\}\]
-\[ \Gamma(1,0,i) = \{stop\}\]
-\[ \Gamma(-1,0,i) = \{stop\}\]
+Active event function \(\Gamma(s)\) corresponde to tansition function\(f(s,e)\).
 
 \subsection{Initial state \(s_0\)}
 All 0.
 \[
-  S = [0,0,0]
+  s_0 = [0,0,0]
 \]
 
 \subsection{Marked states \(S_M\)}
 All accepted.
 
 
-\subsection{Protocol}
-Controller -\textgreater Simulation commands:
-\begin{enumerate}
-	\item $X:Y$ (where X is number of elevator, Y is number of floor) - let elevator X move to floor Y.
-	\item $X:s$ (where X is number of elevator) - let elevator X stops.
-	\item $X:o$ (where X is number of elevator) - let elevator X opens the door.
-	\item $X:c$ (where X is number of elevator) - let elevator X closes the door
-\end{enumerate}
-
-
-Simulation -\textgreater Controller commands:
-\begin{enumerate}
-	\item $X:a$ (where X is number of elevator) - elevator X confirms execution of previous controller command.
-	\item $Y:d$ (where Y is number of floor) - on the floor Y$^{th}$ user push the button to go down.
-	\item $Y:u$ (where Y is number of floor) - on the floor Y$^{th}$ user push the button to go up.
-	\item $X:Y$ (where X is number of elevator, Y is number of floor) - inside elevator X user push the button to go to the Y$^{th}$ floor.
-\end{enumerate}	
-
-Command $X:a$ should be send from simulation to controller after execution of any controller command. It provides a synchronization between both programs.
-\newline
-\newline
 
 \section{Implementation}
 \subsection{Simulation}
@@ -156,8 +170,9 @@ Simulation consists 3 modules: graphics.py, elevator.py and my{\_}threads.py and
 \end{itemize}
 and classes inheriting from class $Thread$:
 \begin{itemize}
- \item MoveLift - class executes command type $X:Y$.
+ \item MoveLiftDown - class executes command type $X:Y$.
  \item StopLift - class executes command type $X:s$.
+ \item MoveLiftUp - class executes command type $X:Y$.
  \item OpenDoors - class executes command type $X:o$.
  \item CloseDoors - class executes command type $X:c$.
  \item ListenInstructions - class listen if in input port is any incoming command.
@@ -179,7 +194,7 @@ Furthermore, any command read from controller (like MoveLift, StopLift, OpenDoor
 	\end{figure}
 
 \subsection{Controller}
-Has to be done.
+Controller algorithm and program is to be developed.
 
 \subsection{Connection}
 Connection is based on simple sockets. Incoming port for controller is a the same time outcoming port for simulation program. On the other hand outcoming port for controller is an incomming port for simulation.
@@ -190,5 +205,27 @@ For now:
 controller -\textgreater simulation is realised on port 8089,
 \newline
 simulation -\textgreater controller is realised on port 8090.
+
+\subsection{Protocol}
+Protocol coredpondes to events devindd in previous section.
+
+\subsubsection{Controller \(\to\) Simulation commands}
+\begin{enumerate}
+	\item $X:Y$ (where X is number of elevator, Y is number of floor) - let elevator X move to floor Y.
+	\item $X:s$ (where X is number of elevator) - let elevator X stops.
+	\item $X:o$ (where X is number of elevator) - let elevator X opens the door.
+	\item $X:c$ (where X is number of elevator) - let elevator X closes the door
+\end{enumerate}
+
+
+\subsubsection{Simulation \(\to\) Controller commands}
+\begin{enumerate}
+	\item $X:a$ (where X is number of elevator) - elevator X confirms execution of previous controller command.
+	\item $Y:d$ (where Y is number of floor) - on the floor Y$^{th}$ user push the button to go down.
+	\item $Y:u$ (where Y is number of floor) - on the floor Y$^{th}$ user push the button to go up.
+	\item $X:Y$ (where X is number of elevator, Y is number of floor) - inside elevator X user push the button to go to the Y$^{th}$ floor.
+\end{enumerate}	
+
+Command $X:a$ should be send from simulation to controller after execution of any controller command. It provides a synchronization between both programs.
 
 \end{document}
