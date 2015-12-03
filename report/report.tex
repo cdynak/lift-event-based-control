@@ -1,20 +1,18 @@
 \documentclass[12pt]{article}
-%\usepackage[version=3]{mhchem} % Package for chemical equation typesetting
-%\usepackage{siunitx} % Provides the \SI{}{} and \si{} command for typesetting SI units
-\usepackage{graphicx} % Required for the inclusion of images
-%\usepackage{natbib} % Required to change bibliography style to APA
-\usepackage{amsmath} % Required for some math elements 
-\usepackage{float}
-\usepackage{listings}
+\usepackage{graphicx}
+\usepackage{amsmath}
+%\usepackage{float}
+%\usepackage{listings}
 \setlength\parindent{0pt} % Removes all indentation from paragraphs
 
-\renewcommand{\labelenumi}{\alph{enumi}.} % Make numbering in the enumerate environment by letter rather than number (e.g. section 6)
-\title{Project - Elevator} % Title
-\author{Dominik Koszkul, Michal Oleszczyk, Cezary Dynak, Marek Frydrysiak } % Author name
+\title{Project - Elevator}
+\author{Dominik Koszkul, Michal Oleszczyk, Cezary Dynak, Marek Frydrysiak }
 \usepackage{geometry}
 \newgeometry{tmargin=2cm, bmargin=2cm, lmargin=2cm, rmargin=2cm}
 \begin{document}
-\maketitle % Insert the title, author and date
+
+\maketitle{}
+%\tableofcontents{}
 
 
 \section{Main concept}
@@ -23,12 +21,16 @@
 \newline
 Assumption: at the very beginning all elevators are in state: closed door on floor 0 (ground floor). Controller remembers current state of all elevators in anytime.
 
+\begin{figure}
+  \centering
+  \includegraphics{img/simulator_controller.png}
+  \caption{DES graph}
+\end{figure}
+
 \section{Automaton description}
 
 \[ G = (E, S, f, \Gamma, s_0, S_M) \]
 
-%\newpage
-% jeden
 \subsection{States \(S\)}
 
 \[ S = [W, P, Q] \]
@@ -44,18 +46,9 @@ where:
 \[ w_i = [d_i, o_i, f_i] \]
 where:
 
-\(d \in \{-1,0,1\}\)
-\begin{itemize}
-  \item \(-1\) - down
-  \item \(0\) - stop
-  \item \(1\) - up
-\end{itemize}
+\(d \in \{\text{going\_down},\text{stopped},\text{going\_up}\}\)
 
-\(o \in \{0,1\}\)
-\begin{itemize}
-  \item \(0\) - closed
-  \item \(1\) - open
-\end{itemize}
+\(o \in \{\text{closed},\text{opened}\}\)
 
 \(f \in \{0,1,...,i,...,n\}\)
 \begin{itemize}
@@ -63,11 +56,6 @@ where:
   \item \(n\) - number of floors
 \end{itemize}
 
-\begin{figure}
-  \centering
-  \includegraphics{img/simulator_controller.png}
-  \caption{DES graph}
-\end{figure}
 
 \subsubsection{External buttons states}
 
@@ -78,17 +66,9 @@ where:
 \end{itemize}
 
 \[ p_i = [g_{u_i}, g_{d_i}] \]
-where:
-\(g_{u_i} \in \{0,1\}\)
-\begin{itemize}
-  \item 0 - not pushed
-  \item 1 - pushed
-\end{itemize}
-\(g_{d_i} \in \{0,1\}\)
-\begin{itemize}
-  \item 0 - not pushed
-  \item 1 - pushed
-\end{itemize}
+where:\\
+\(g_{u_i} \in \{\text{not\_pushed},\text{pushed}\}\)\\
+\(g_{d_i} \in \{\text{not\_pushed},\text{pushed}\}\)
 
 
 \subsubsection{Internal buttons states}
@@ -98,28 +78,28 @@ where:
   \item \(l\) - number of lifts
 \end{itemize}
 \[q_i = [b_0, b_1, ..., b_i, ..., b_n] \]
-\(b_i \in \{0,1\} \)
-\begin{itemize}
-  \item 0 - not pushed
-  \item 1 - pushed
-\end{itemize}
+\(b_i \in \{\text{not\_pushed},\text{pushed}\} \)
 
+\newpage
 
-
-%\newpage
-% dwa
 \subsection{Events \(E\)}
 
-\[ E = E^l \cup E^c \cup E^x \cup E^i \]
-\[ E^i = [\text{lift\_nr},\text{button\_nr}] \]
-\(\text{direction} \in \{0,1\}\)
-\[ E^x = [\text{lift\_nr}, \text{command}] \]
-\(\text{command} \in \{0,1,2,3,4\}\)
-\[ E^c = [\text{lift\_nr}, \text{ACK}] \]
-\(\text{ACK} \in \{0,1,2,3\}\)
+\[ E = E^x \cup E^i \cup E^c \cup E^l \]
 
-%\newpage
-% trzy
+\subsubsection{Events from external buttons}
+\[ E^x = [\text{lift\_nr},\text{button\_nr}] \]
+
+\subsubsection{Events from internal buttons}
+\[ E^i = [\text{lift\_nr},\text{button\_nr}] \]
+
+\subsubsection{Events from controller}
+\[ E^c = [\text{lift\_nr}, \text{command}] \]
+\(\text{command} \in \{\text{go\_down},\text{stop},\text{go\_up},\text{close\_door},\text{open\_door}\}\)
+
+\subsubsection{Events from lifts}
+\[ E^l = [\text{lift\_nr}, \text{command}] \]
+\(\text{command} \in \{\text{going\_down},\text{stopped},\text{going\_up},\text{closed},\text{opened}\}\)
+
 \subsection{Transition function\(f(s,e)\)}
 \(0 < i < n\)
 \[ f([0,0,i],\text{open\_doors}) = [0,1,i]\]
@@ -136,6 +116,9 @@ where:
 
 \subsection{Initial state \(s_0\)}
 All 0.
+\[
+  S = [0,0,0]
+\]
 
 \subsection{Marked states \(S_M\)}
 All accepted.
@@ -164,10 +147,7 @@ Command $X:a$ should be send from simulation to controller after execution of an
 \newline
 
 \section{Implementation}
-\subsection{General informations}
-\subsubsection{Controller}
-Has to be done.
-\subsubsection{Simulation}
+\subsection{Simulation}
 Simulation program has been written in Python2.7 scripting language. For preparation user interface we used $Tkinter$ standard library. 
 Simulation consists 3 modules: graphics.py, elevator.py and my{\_}threads.py and implements 2 basic classes:  
 \begin{itemize}
@@ -197,6 +177,9 @@ Furthermore, any command read from controller (like MoveLift, StopLift, OpenDoor
 	\begin{figure}
 	\includegraphics[width=0.93\textwidth]{img/winda.png}
 	\end{figure}
+
+\subsection{Controller}
+Has to be done.
 
 \subsection{Connection}
 Connection is based on simple sockets. Incoming port for controller is a the same time outcoming port for simulation program. On the other hand outcoming port for controller is an incomming port for simulation.
