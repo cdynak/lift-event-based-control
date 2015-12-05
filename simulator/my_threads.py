@@ -4,6 +4,8 @@ from Tkinter import *
 from elevator import *
 import socket
 from _elementtree import tostring
+import random
+
 
 class MoveLift(threading.Thread):
     def __init__(self, elevator_object, floor_no, moving_time, queue):
@@ -103,12 +105,15 @@ class ListenInstructions(threading.Thread):
 
     def run(self):
         connection, address = self.serversocket.accept()
-        while True:
-            
+        while True:    
             buf = connection.recv(64)
             if len(buf) > 0:
                 self.instruction_queue.put_nowait(buf)
                 self.segregate_task()
+                
+    def exit(self):
+        self.serversocket.close()
+        self._Thread__stop()
 
 
 class SendInstructions(threading.Thread):
@@ -124,9 +129,50 @@ class SendInstructions(threading.Thread):
     def run(self):
         connection, address = self.serversocket.accept()
         while True:
-            if not self.sending_queue.empty():
-                
+            if not self.sending_queue.empty(): 
                 elem = self.sending_queue.get()
-                print elem
+                #print elem
                 connection.sendall(elem)
                 
+    def exit(self):
+        self.serversocket.close()
+        self._Thread__stop()
+        
+        
+        
+        
+class AI_component(threading.Thread):
+    directions = ['d', 'u']
+    
+    def __init__(self, floor_list, queue_out, stage_object):
+        self.stage = stage_object
+        self.floor_list = floor_list
+        self.queue = queue_out
+        super(AI_component, self).__init__() 
+        
+    def run(self):
+        i = 0
+        while i<10:
+            if self.queue.qsize() < 10:
+                mess = self.make_message()
+                self.queue.put_nowait(mess)
+                i+=1
+                time.sleep(0.5)
+        self.stage.input_type = "manual"
+                
+    def exit(self):
+        self._Thread__stop()
+        
+    def make_message(self):
+        if (random.randint(0,2) == 0):
+            #stoimy przed winda na pietrze)
+            floor = random.randint(0, max(self.floor_list))
+            dir = random.choice(self.directions)
+            return ("%d:%s" % (floor, dir))
+        else:
+            #jestesmy w windzie
+            elevator = random.randint(1, len(self.floor_list))
+            floor = random.randint(0, self.floor_list[elevator-1])
+            return ("%d:%d" % (elevator, floor))
+            
+            
