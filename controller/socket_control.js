@@ -16,8 +16,8 @@ if(process.argv[2]) {
 console.log("floor list: " + lista_pieter);
 console.log("max floor: " + lista_pieter.max());
 
-var P = [];
-var Q = [];
+var P = []; // External buttons state
+var Q = []; // Internal buttons state
 for(var i=0; i<lista_pieter.max(); i++) {
   P[i] = new Array(2);
 }
