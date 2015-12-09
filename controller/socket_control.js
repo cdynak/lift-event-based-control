@@ -31,10 +31,22 @@ console.log(Q);
 /*var sender = new net.Socket();
 sender.connect('8089', 'localhost', function(){
   sender.write("1:1");
-});
+}); */
 
 var listener = new net.Socket();
 listener.on('data', function(data) {
-  console.log(data.toString());
+	var x = data.toString();
+	var externalBtn = x.match(/(\d+):([u|d])/);
+	if ((externalBtn[1] < lista_pieter.max()) && (externalBtn[1] >= 0)) {
+			switch (externalBtn[2]) {
+				case "u":
+					P[externalBtn[1]][1] = 1;
+					break;
+				case "d":
+					P[externalBtn[1]][0] = 1;
+					break;
+			}
+  	console.log(P);
+	}
 });
-listener.connect('8090', 'localhost');*/
+listener.connect('8090', 'localhost');
