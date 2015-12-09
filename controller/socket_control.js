@@ -19,16 +19,16 @@ console.log("max floor: " + lista_pieter.max());
 var P = []; // External buttons state
 var Q = []; // Internal buttons state
 for(var i=0; i<lista_pieter.max(); i++) {
-  P[i] = new Array(2);
+  P[i] = Array.apply(null, Array(2)).map(Number.prototype.valueOf,0);
 }
 for(var i=0; i<lista_pieter.length; i++) {
-  Q[i] = new Array(lista_pieter[i]);
+  Q[i] = Array.apply(null, Array(lista_pieter[i])).map(Number.prototype.valueOf,0);
 }
 
 console.log(P);
 console.log(Q);
 
-var sender = new net.Socket();
+/*var sender = new net.Socket();
 sender.connect('8089', 'localhost', function(){
   sender.write("1:1");
 });
@@ -37,4 +37,4 @@ var listener = new net.Socket();
 listener.on('data', function(data) {
   console.log(data.toString());
 });
-listener.connect('8090', 'localhost');
+listener.connect('8090', 'localhost');*/
