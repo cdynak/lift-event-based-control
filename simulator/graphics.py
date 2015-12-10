@@ -34,7 +34,7 @@ class Stage():
         
         self.frame_right_top = Frame(self.frame_right, bg="lightblue")
         self.frame_right_bottom = Frame(self.frame_right, bg="lightblue")
-        split2 = 0.3
+        split2 = 0.35
         self.frame_right_top.place(rely=0, relheight=split2, relwidth=1)
         self.frame_right_bottom.place(rely=split2, relheight=1.0-split2, relwidth=1)
         
@@ -42,7 +42,8 @@ class Stage():
         self.add_main_panel()
         self.add_digital_panel()
         self.build_lifts()
-        
+
+        self.AI_thread = AI_component(self.floors, self.queue_out, self)
         self.root.protocol("WM_DELETE_WINDOW", self.on_closing)
             
 
@@ -59,7 +60,7 @@ class Stage():
 
     def add_digital_panel(self):
         for elem in range(max(self.floors) + 1):
-            digit = Button(self.frame_right_bottom, text=elem, font = "Helvetica 13 bold", width=3, height=1, command= lambda: self.callback("cos"))
+            digit = Button(self.frame_right_bottom, text=elem, font = "Helvetica 13 bold", width=3, height=1, command= lambda var=elem: self.callback_inside(var))
             digit.grid(row=elem/self.digit_in_row, column=elem%self.digit_in_row, padx=2, pady=2)
         
     def build_lifts(self):
@@ -74,13 +75,19 @@ class Stage():
     def callback_up_or_down(self, text):
         floor = self.input_box.get()
         self.queue_out.put_nowait(floor + ":" + text)    
+    def callback_inside(self, destination):
+        floor = self.input_box.get()
+	if floor == "":
+		floor = "0"
+        self.queue_out.put_nowait(floor + ":" + str(destination))    
+        
         
     def automatic_on(self):
-        print self.input_type
+        #print self.input_type
         if self.input_type == "manual":
-            self.AI_thread = AI_component(self.floors, self.queue_out, self)
             self.AI_thread.start()
             self.input_type = "auto"
+            self.AI_thread = AI_component(self.floors, self.queue_out, self)
 
             
     def MakeALoop(self):
@@ -107,10 +114,10 @@ def scheduler(queue_in, queue_out, stage_object):
         stop_lift = StopLift(stage_object.elevators[int(elevator)-1], breaking_time, queue_out)
         stop_lift.start()       
     if command == 'o':
-        open_door = OpenDoors(stage_object.elevators[int(elevator)-1], openning_time, queue_out, stage_object.frame_right_bottom)
+        open_door = OpenDoors(stage_object.elevators[int(elevator)-1], openning_time, queue_out)
         open_door.start()       
     if command == 'c':
-        close_door = CloseDoors(stage_object.elevators[int(elevator)-1], closing_time, queue_out, stage_object.frame_right_bottom)
+        close_door = CloseDoors(stage_object.elevators[int(elevator)-1], closing_time, queue_out)
         close_door.start()
     
      
@@ -123,8 +130,8 @@ if __name__ == '__main__':
     scena = Stage(len(lista_pieter), lista_pieter, queue_out)# Execute the main event handler
 
     
-    for child in scena.frame_right_bottom.winfo_children():
-        child.configure(state='disable')
+#    for child in scena.frame_right_bottom.winfo_children():
+#        child.configure(state='disable')
     
     listener = ListenInstructions(8089, queue_in, lambda: scheduler(queue_in, queue_out, scena))
     sender = SendInstructions(8090, queue_out)

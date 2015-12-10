@@ -51,19 +51,16 @@ class StopLift(threading.Thread):
      
         
 class OpenDoors(threading.Thread):
-    def __init__(self, elevator_object, openning_time, queue, frame):
+    def __init__(self, elevator_object, openning_time, queue):
         self.elevator = elevator_object
         self.o_time = openning_time
         self.queue_out = queue
-        self.frame = frame
         super(OpenDoors, self).__init__()
 
     def run(self):
         self.elevator.setState("open")
         time.sleep(self.o_time)
         self.elevator.floors[self.elevator.actual_floor].setState("open")
-        for child in self.frame.winfo_children():
-            child.configure(state='active')
         self.sendACK()
         
     def sendACK(self):
@@ -71,16 +68,13 @@ class OpenDoors(threading.Thread):
         self.queue_out.put_nowait(message)         
 
 class CloseDoors(threading.Thread):
-    def __init__(self, elevator_object, closing_time, queue, frame):
+    def __init__(self, elevator_object, closing_time, queue):
         self.elevator = elevator_object
         self.c_time = closing_time
         self.queue_out = queue
-        self.frame = frame
         super(CloseDoors, self).__init__()
 
     def run(self):
-        for child in self.frame.winfo_children():
-            child.configure(state='disable')
         self.elevator.floors[self.elevator.actual_floor].setState("stay")
         time.sleep(self.c_time)
         self.elevator.setState("stay")
