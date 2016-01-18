@@ -179,8 +179,6 @@ where:
   [0,[[0,...,0],...,[0,...,b_{\text{lift\_nr}_\text{button\_nr}}=\text{pushed},..,0],...,[0,...,0]],0]
 \]
 
-\subsubsection{Events from the lifts}
-Events from lifts don't change states, they are only information for controller.
 
 \subsection{Initial state \(s_0\)}
 All 0.
@@ -188,12 +186,13 @@ All 0.
   s_0 = [0,0,0]
 \]
 
+
 %\section{Automaton description}
 
 %\[ G = (E, S, f, \Gamma, s_0, S_M) \]
 
 \subsection{Marked states \(S_M\)}
-All accepted.
+All permitted.
 
 \section{Controller model}
 
@@ -244,25 +243,25 @@ The simulation consists of 3 modules: graphics.py, elevator.py and my{\_}threads
 \end{itemize}
 and classes inheriting from the class $Thread$:
 \begin{itemize}
- \item MoveLiftDown - class executes command type $X:Y$.
- \item StopLift - class executes command type $X:s$.
- \item MoveLiftUp - class executes command type $X:Y$.
- \item OpenDoors - class executes command type $X:o$.
- \item CloseDoors - class executes command type $X:c$.
- \item ListenInstructions - class listen whether on input port there is any incoming command or not.
+ \item MoveLiftDown - class executes a command type $X:Y$.
+ \item StopLift - class executes a command type $X:s$.
+ \item MoveLiftUp - class executes a command type $X:Y$.
+ \item OpenDoors - class executes a command type $X:o$.
+ \item CloseDoors - class executes a command type $X:c$.
+ \item ListenInstructions - class listen whether on the input port there is any incoming command or not.
  \item SendInstructions - class sends to the output port a command for controller.
 \end{itemize}
 
 
-The program is basing on 4 main threads (to quarantee simultaneously work): 
+The program is basing on 4 main threads (to quarantee the simultaneous work): 
 \begin{itemize}
 	\item Main thread - is responsible for the parameters configuration, start other thread and waiting for them to finish.
-	\item Graphical thread - is responsible for refreshing the user interface (drawing elevators and floors) and for sending. 
+	\item Graphical thread - is responsible for refreshing the user interface (drawing the elevators and the floors) and for sending. 
 	\item Listenning thread - is responsible for listening on the input port and adding the incoming instructions to the input queue.
-	\item Sending thread - is responsible for sending command to the controller via the output port if there is a instruction ready to send in the output queue.		
+	\item Sending thread - is responsible for sending a command to the controller via the output port if there is an instruction ready to be sent to the output queue.		
 \end{itemize}
 
-Furthermore, any command read from the controller (like MoveLift, StopLift, OpenDoor, CloseDoor) takes some predefined time. That is why any of that incoming commands starts another independent thread. In that thread, the commands are executed (for example during the MoveLift command the user interface shows direction of movement, highlight a specified floor to green). After the execution that thread puts in the output queue a confirmation of the execution for the controller ($X:a$).
+Furthermore, any command read from the controller (like MoveLift, StopLift, OpenDoor, CloseDoor) takes some predefined time. That is why any of that incoming commands starts another independent thread. In that thread, the commands are executed (for example during the MoveLift command the user interface shows direction of movement, highlighting a specified floor to green). After the execution that thread puts in the output queue a confirmation of the execution for the controller ($X:a$).
 	\begin{figure}
 	\includegraphics[width=0.93\textwidth]{img/winda.png}
 	\end{figure}
@@ -326,7 +325,7 @@ Q =
 
 
 \subsection{Connection}
-The connection is based on simple sockets. The 'incoming' port for the controller is at the same time the 'outcoming' port for the simulation program. On the other hand the outcoming port for the controller is an 'incomming' port for  the simulation.
+The connection is based on sockets. The 'incoming' port for the controller is at the same time the 'outup' port for the simulation program and vice versa.
 \newline
 \newline
 For now:
@@ -338,26 +337,26 @@ simulation -\textgreater controller is realised on port 8090.
 \newpage
 
 \subsection{Protocol}
-The protocol corresponds to events defined in previous section.
+The protocol corresponds to the events defined in the previous section.
 
 \subsubsection{Controller \(\to\) Simulation commands}
 \begin{enumerate}
-	\item $X:Y$ (where X is number of elevator, Y is number of floor) - let elevator X move to floor Y.
-	\item $X:s$ (where X is number of elevator) - let elevator X stops.
-	\item $X:o$ (where X is number of elevator) - let elevator X opens the door.
-	\item $X:c$ (where X is number of elevator) - let elevator X closes the door
+	\item $X:Y$ (where X is the number of an elevator, Y is number of a floor) - let the elevator X move to the floor Y.
+	\item $X:s$ (where X is the number of an elevator) - let the elevator X stops.
+	\item $X:o$ (where X is the number of an elevator) - let the elevator X opens the door.
+	\item $X:c$ (where X is the number of an elevator) - let the elevator X closes the door
 \end{enumerate}
 
 
 \subsubsection{Simulation \(\to\) Controller commands}
 \begin{enumerate}
-	\item $X:a$ (where X is number of elevator) - elevator X confirms execution of previous controller command.
-	\item $Y:d$ (where Y is number of floor) - on the floor Y$^{th}$ user push the button to go down.
-	\item $Y:u$ (where Y is number of floor) - on the floor Y$^{th}$ user push the button to go up.
-	\item $X:Y$ (where X is number of elevator, Y is number of floor) - inside elevator X user push the button to go to the Y$^{th}$ floor.
+	\item $X:a$ (where X is the number of an elevator) - the elevator X confirms execution of the previous controller command.
+	\item $Y:d$ (where Y is the number of a floor) - on the floor Y$^{th}$ user pushes the button to go down.
+	\item $Y:u$ (where Y is the number of a floor) - on the floor Y$^{th}$ user pushes the button to go up.
+	\item $X:Y$ (where X is the number of an elevator, Y is the number of a floor) - inside the elevator X user pushes the button to go to the Y$^{th}$ floor.
 \end{enumerate}	
 
-Command $X:a$ should be send from simulation to controller after execution of any controller command. It provides a synchronization between both programs.
+Command $X:a$ should be send from the simulation to the controller after execution of any controller command. It provides a synchronization between both programs.
 
 \section{Effort}
 The task was divided among the group members in the following order:
