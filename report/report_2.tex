@@ -16,12 +16,12 @@
 
 
 \section{Introduction}
-The main goal of the project is to develop an application simulating the behaviour of a lift system. It will consists of a simulator (depicting a state of a set of lifts) and a controller, which will control their activity basing on users requests and the system state.
+The main goal of the project is to develop a controller of a lift system. It will consists of a simulator (depicting a state of a set of lifts) and a controller, which will control their activity basing on users requests and the system state.
 \newline \\
-The main concept is to create two different programs (one for implementation of the controller system and the second one for implementation of the elevators simulation). The programs should be independent, i.e. they should use some general protocol for communication, and work failure-free with any other external programs which also use that specified protocol. Both programs start with a set of parameters: number of elevators and number of floors supported by any of them. The number of floors does not need to be the same for different elevators. Our elevator controller and simulation do not support underground floors.
+The main concept is to create two different programs (one implementing the controller system and the second one for implementation of the elevators simulation). The programs should be independent, i.e. they should use some general protocol for communication, and work failure-free with any other external programs which also use that specified protocol. Both programs start with a set of parameters: a number of elevators and a number of floors supported by any of them. The number of floors does not need to be the same for different elevators. Our elevator controller and simulation do not support underground floors.
 \newline
 \newline
-Assumption: at the very beginning all elevators are in the following state: closed doors on the floor 0 (ground floor). The controller remembers current state of all elevators anytime.
+Assumption: at the very beginning all elevators are in the following state: closed doors on the floor 0 (ground floor). The controller remembers the current state of all the elevators anytime.
 
 \section{Project concept}
 
@@ -46,69 +46,91 @@ Since the communication protocol between the simulator and the controller is set
 
 The set of events $E$ is described as follows:
 
-\[ E = E^x \cup E^i \cup E^c \cup E^l \]
+\[ E = E^x \cup E^i \cup E^c \cup E^l, \]
 
-\begin{enumerate}
-\item \textbf{Events from external buttons} 
-\[ E^x = [\text{lift\_nr},\text{button\_nr}] \]
-\(\text{button\_nr} \in \{\text{button\_down},\text{button\_up}\}\)
+where:
 
-\item \textbf{Events from internal buttons}
-\[ E^i = [\text{lift\_nr},\text{button\_nr}] \]
-\(\text{button\_nr} \in \{0, 1,..., n\}\)
+\begin{itemize}
 
-\item \textbf{Events from controller}
-\[ E^c = [\text{lift\_nr}, \text{command}] \]
-\(\text{command} \in \{\text{go\_down},\text{stop},\text{go\_up},\text{close\_door},\text{open\_door}\}\)
+\item[]$E^x$ - events from the external buttons,
 
-\item \textbf{Events from lifts}
-\[ E^l = [\text{lift\_nr}, \text{command}] \]
-\(\text{command} \in \{\text{going\_down},\text{stopped},\text{going\_up},\text{closed},\text{opened}\}\)
-\end{enumerate}
+\item[]$E^i$ - events from the internal buttons,
+
+\item[]$E^c$ - events from the controller,
+
+\item[]$E^l$ - events from the lifts.
+\end{itemize}
+
+
 
 \section{System model}
 \subsection{States}
 The state of the system model can be defined as follows:
 
-\[ S = [W, P, Q]. \]
-\newline
-The sets of states $W$, $P$, $Q$ are precisely explained in the succeeding subsections.
+\[ S = [W, P, Q], \]
+
+where:
+
+\begin{itemize}
+
+\item[]$W$ - lifts state,
+
+\item[]$P$ - external buttons state,
+
+\item[]$Q$ - internal buttons state.
+
+\end{itemize}
+
+The sets of states $W$, $P$, $Q$ are precisely explained in the subsequent sections.
 
 \subsubsection{Lift states}
 
-\[ W=[w_1, w_2, ..., w_i, ..., w_l ]\]
+\[ W=[w_1, w_2, ..., w_i, ..., w_l ],\]
 where:
 \begin{itemize}
-  \item \(l\) - number of lifts
+  \item[] \(l\) - number of lifts.
 \end{itemize}
 
-\[ w_i = [d_i, o_i, f_i] \]
+For each lift state
+
+\[ w_i = [d_i, o_i, f_i], \]
 where:
 
-\(d \in \{\text{going\_down},\text{stopped},\text{going\_up}\}\)
-
-\(o \in \{\text{closed},\text{opened}\}\)
-
-\(f \in \{0,1,...,i,...,n\}\)
 \begin{itemize}
-  \item \(i\) - next floor to be reached
-  \item \(n\) - number of floors
+\item[] \(d \in \{\text{going\_down},\text{stopped},\text{going\_up}\}\),
+
+\item[] \(o \in \{\text{closed},\text{opened}\}\),
+
+\item[] \(f \in \{0,1,...,i,...,n\}\).
+\end{itemize}
+
+Moreover
+
+\begin{itemize}
+  \item[] \(i\) - next floor to be reached or the current floor,
+  \item[] \(n\) - number of floors.
 \end{itemize}
 
 
 \subsubsection{External buttons states}
 
-\[ P = [p_1, p_2, ..., p_i, ..., p_n] \]
+\[ P = [p_1, p_2, ..., p_i, ..., p_n], \]
 where:
 \begin{itemize}
-  \item \(n\) - number of floors
+  \item[] \(n\) - number of floors,
 \end{itemize}
 
-\[ p_i = [g_{i_d}, g_{i_u}] \]
+\[ p_i = [g_{i_d}, g_{i_u}], \]
 where:\\
-\(g_{i_d} \in \{\text{not\_pushed},\text{pushed}\}\)
-\(g_{i_u} \in \{\text{not\_pushed},\text{pushed}\}\)\\
+\(g_{i_d} \in \{\text{not\_pushed},\text{pushed}\}\),
+\(g_{i_u} \in \{\text{not\_pushed},\text{pushed}\}\).\\
 
+Moreover
+
+\begin{itemize}
+  \item[] \(d\) - down,
+  \item[] \(u\) - up.
+\end{itemize}
 
 \subsubsection{Internal buttons states}
 \[ Q = [q_1, q_2, ..., q_i, ..., q_l] \]
@@ -123,20 +145,24 @@ where:
 
 
 \subsubsection{Events from the external buttons} 
-\[ E^x = [\text{lift\_nr},\text{button\_nr}] \]
-\(\text{button\_nr} \in \{\text{button\_down},\text{button\_up}\}\)
+\[ E^x = [\text{floor\_nr},\text{direction}] \]
+
+\begin{itemize}
+\item[] \(\text{floor\_nr} \in \{0, 1,..., n\}\),
+\item[] \(\text{direction} \in \{down, up\}\).
+\end{itemize}
 
 \subsubsection{Events from the internal buttons}
 \[ E^i = [\text{lift\_nr},\text{button\_nr}] \]
 \(\text{button\_nr} \in \{0, 1,..., n\}\)
 
 \subsubsection{Events from the lifts}
-\[ E^l = [\text{lift\_nr}, \text{command}] \]
-\(\text{command} \in \{\text{going\_down},\text{stopped},\text{going\_up},\text{closed},\text{opened}\}\)
+\[ E^l = [\text{lift\_nr}, \text{action}] \]
+\(\text{action} \in \{\text{going\_down},\text{stopped},\text{going\_up},\text{closed},\text{opened}\}\)
 
 \subsection{Transition functions \(f(s,e)\)}
 
-\subsubsection{Events from external buttons}
+\subsubsection{Events from the external buttons}
 \[
   f(s_0,[\text{lift\_nr},\text{button\_down}]) =
   [0,[[0,0],...,[g_{\text{lift\_nr}_d}=\text{pushed},0],...,[0,0]],0]
@@ -147,13 +173,13 @@ where:
 \]
 
 
-\subsubsection{Events from internal buttons}
+\subsubsection{Events from the internal buttons}
 \[
   f(s_0,[\text{lift\_nr},\text{button\_nr}]) =
   [0,[[0,...,0],...,[0,...,b_{\text{lift\_nr}_\text{button\_nr}}=\text{pushed},..,0],...,[0,...,0]],0]
 \]
 
-\subsubsection{Events from lifts}
+\subsubsection{Events from the lifts}
 Events from lifts don't change states, they are only information for controller.
 
 \subsection{Initial state \(s_0\)}
@@ -242,7 +268,62 @@ Furthermore, any command read from the controller (like MoveLift, StopLift, Open
 	\end{figure}
 
 \subsection{Controller}
-The controller algorithm and program is to be developed.
+
+The controller uses the same set of data, as the simulator provides. The exemplary controller execution is listed below
+
+\begin{verbatim}
+>> node socket_control.js
+floor list: 10,10,10,10,10,10,10,10,10,7,8,20
+max floor: 20
+W = 
+[ [ 0, 0, 0 ],
+  [ 0, 0, 0 ],
+  [ 0, 0, 0 ],
+  [ 0, 0, 0 ],
+  [ 0, 0, 0 ],
+  [ 0, 0, 0 ],
+  [ 0, 0, 0 ],
+  [ 0, 0, 0 ],
+  [ 0, 0, 0 ],
+  [ 0, 0, 0 ],
+  [ 0, 0, 0 ],
+  [ 0, 0, 0 ] ]
+P = 
+[ [ 0, 0 ],
+  [ 0, 0 ],
+  [ 0, 0 ],
+  [ 0, 0 ],
+  [ 0, 0 ],
+  [ 0, 0 ],
+  [ 0, 0 ],
+  [ 0, 0 ],
+  [ 0, 0 ],
+  [ 0, 0 ],
+  [ 0, 0 ],
+  [ 0, 0 ],
+  [ 0, 0 ],
+  [ 0, 0 ],
+  [ 0, 0 ],
+  [ 0, 0 ],
+  [ 0, 0 ],
+  [ 0, 0 ],
+  [ 0, 0 ],
+  [ 0, 0 ] ]
+Q = 
+[ [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ],
+  [ 0, 0, 0, 0, 0, 0, 0 ],
+  [ 0, 0, 0, 0, 0, 0, 0, 0 ],
+  [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ] ]
+\end{verbatim}
+
 
 \subsection{Connection}
 The connection is based on simple sockets. The 'incoming' port for the controller is at the same time the 'outcoming' port for the simulation program. On the other hand the outcoming port for the controller is an 'incomming' port for  the simulation.
@@ -281,10 +362,10 @@ Command $X:a$ should be send from simulation to controller after execution of an
 \section{Effort}
 The task was divided among the group members in the following order:
 \begin{enumerate}
-\item Michal Oleszczyk - simulation part (main)
-\item Dominik Koszkul - simulation part (assistant), documentation
-\item Cezary Dynak - controller part (main)
-\item Marek Frydrysiak - controller part (assistant), documentation
+\item Michal Oleszczyk - simulation part, documentation
+\item Dominik Koszkul - simulation part, documentation
+\item Cezary Dynak - controller part, documentation
+\item Marek Frydrysiak - controller part, documentation
 \end{enumerate}
 
 \end{document}
