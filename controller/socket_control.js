@@ -44,26 +44,29 @@ sender.connect('8089', 'localhost', function(){
 var listener = new net.Socket();
 listener.on('data', function(data) {
   var x = data.toString();
-  var btn_cmd = ["",""];
-  if(btn_cmd = x.match(/(\d+):([u|d])/)) {
-    if ((btn_cmd[1] < lista_pieter.max()) && (btn_cmd[1] >= 0)) {
-      switch (btn_cmd[2]) {
+  var m = ["",""];
+  if(m = x.match(/(\d+):([u|d])/)) {
+    if ((m[1] < lista_pieter.max()) && (m[1] >= 0)) {
+      switch (m[2]) {
         case "u":
-          P[btn_cmd[1]][1] = 1;
+          P[m[1]][1] = 1;
           break;
         case "d":
-          P[btn_cmd[1]][0] = 1;
+          P[m[1]][0] = 1;
           break;
       }
       console.log("P = ");
       console.log(P);
     }
-  } else if(btn_cmd = x.match(/(\d+):(\d+)/)){
-    Q[btn_cmd[1]][btn_cmd[2]] = 1;
+  } else if(m = x.match(/(\d+):(\d+)/)){
+    Q[m[1]][m[2]] = 1;
     console.log("Q = ");
     console.log(Q);
+  } else if(m = x.match(/(\d+):a/)){
+    console.log("W = ");
+    console.log(W);
   } else {
-    console.log("bad btn_cmd syntax");
+    console.log("bad m syntax");
   }
 });
 listener.connect('8090', 'localhost');
