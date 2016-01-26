@@ -38,12 +38,13 @@ console.log(Q);
 
 var sender = new net.Socket();
 sender.connect('8089', 'localhost', function(){
-  sender.write("1:1");
+//  sender.write("1:1");
 });
 
 var listener = new net.Socket();
 listener.on('data', function(data) {
   var x = data.toString();
+  console.log('listener: ' + x);
   var m = ["",""];
   if(m = x.match(/(\d+):([u|d])/)) {
     if ((m[1] < lista_pieter.max()) && (m[1] >= 0)) {
@@ -55,14 +56,48 @@ listener.on('data', function(data) {
           P[m[1]][0] = 1;
           break;
       }
-      console.log("P = ");
-      console.log(P);
     }
+
+    console.log("P = ");
+    console.log(P);
   } else if(m = x.match(/(\d+):(\d+)/)){
-    Q[m[1]][m[2]] = 1;
+    var dir = m[2]-W[m[1]][2];
+    console.log('dir: '+dir);
+    if(dir > 0) {
+      var y=m[1]+':'+(parseInt(W[m[1]][2])+1);
+      sender.write(y,function(){
+        console.log('sender: '+y);
+        Q[m[1]][m[2]] = 1;
+        W[m[1]][2]++;
+      });
+    } else if (dir < 0) {
+      var y=m[1]+':'+(parseInt(W[m[1]][2])-1);
+      sender.write(y,function(){
+        console.log('sender: '+y);
+        Q[m[1]][m[2]] = 1;
+        W[m[1]][2]++;
+      });
+    } else {
+      Q[m[1]][m[2]] = 0;
+    }
+
     console.log("Q = ");
     console.log(Q);
   } else if(m = x.match(/(\d+):a/)){
+    var war = 0;
+    var par = 0;
+    for(var i = W[m[1]][2]+1; war==0 && i<lista_pieter[m[1]]; i++) {
+      if(Q[m[1]][i]==1) {
+        war = 1;
+        par = i;
+      }
+    }
+    if(war==1) {
+      var y=m[1]+':'+par;
+      sender.write(y);
+      console.log('sender: '+y);
+    }
+
     console.log("W = ");
     console.log(W);
   } else {
